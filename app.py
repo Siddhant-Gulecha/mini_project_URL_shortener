@@ -1,59 +1,30 @@
-from flask import Flask, request, redirect, render_template
-import sqlite3
-import random
-import string
+from flask import Flask, request, jsonify, render_template, redirect
 
 app = Flask(__name__)
-DATABASE = "urls.db"
 
-# Function to create database table
-def init_db():
-    with sqlite3.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS urls (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                long_url TEXT NOT NULL,
-                short_url TEXT UNIQUE NOT NULL
-            )
-        """)
-        conn.commit()
+shortened_urls = {}
 
-# Function to generate a random short URL
-def generate_short_url():
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=6))
-
-# Route to display homepage
-@app.route("/")
+@app.route('/')
 def home():
-    return render_template("index.html")
+    return render_template('index.html')
 
-# Route to shorten URL
-@app.route("/shorten", methods=["POST"])
-def shorten_url():
-    long_url = request.form["long_url"]
-    short_url = generate_short_url()
-    
-    with sqlite3.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO urls (long_url, short_url) VALUES (?, ?)", (long_url, short_url))
-        conn.commit()
-    
-    return f"Short URL: <a href='/r/{short_url}'>localhost:5000/r/{short_url}</a>"
+@app.route('/shorten', methods=['POST'])
+def shorten():
+    long_url = request.form.get('long_url')
+    if not long_url:
+        return jsonify({'error': 'No URL provided'}), 400
 
-# Route to redirect to original URL
-@app.route("/r/<short_url>")
-def redirect_url(short_url):
-    with sqlite3.connect(DATABASE) as conn:
-        cursor = conn.cursor()
-        cursor.execute("SELECT long_url FROM urls WHERE short_url = ?", (short_url,))
-        result = cursor.fetchone()
-        
-        if result:
-            return redirect(result[0])
-        else:
-            return "URL not found", 404
+    short_code = str(hash(long_url))[:6]  # Generate a short code
+    shortened_urls[short_code] = long_url
 
-if __name__ == "__main__":
-    init_db()
+    return jsonify({'short_url': f'/{short_code}'})  # Returns JSON response
+
+@app.route('/<short_code>')
+def redirect_url(short_code):
+    long_url = shortened_urls.get(short_code)
+    if long_url:
+        return redirect(long_url)
+    return "URL not found", 404
+
+if __name__ == '__main__':
     app.run(debug=True)
