@@ -29,6 +29,15 @@
             margin-top: 20px;
             font-weight: bold;
         }
+        .copy-btn {
+            margin-top: 10px;
+            padding: 5px 10px;
+            cursor: pointer;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
     </style>
     <script>
         async function shortenURL(event) {
@@ -36,7 +45,19 @@
             let formData = new FormData(document.getElementById("urlForm"));
             let response = await fetch("/shorten", { method: "POST", body: formData });
             let data = await response.json();
-            document.getElementById("shortened-url").innerHTML = `Shortened URL: <a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+            
+            let shortUrlElement = document.getElementById("shortened-url");
+            shortUrlElement.innerHTML = `Shortened URL: <a href="${data.short_url}" target="_blank" id="shortUrl">${data.short_url}</a>`;
+            
+            let copyButton = document.createElement("button");
+            copyButton.innerText = "Copy Link";
+            copyButton.className = "copy-btn";
+            copyButton.onclick = function() {
+                navigator.clipboard.writeText(data.short_url);
+                alert("Copied to clipboard: " + data.short_url);
+            };
+            
+            shortUrlElement.appendChild(copyButton);
         }
     </script>
 </head>
