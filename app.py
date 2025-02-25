@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, redirect
+from flask import Flask, request, jsonify, render_template, redirect  
 
 app = Flask(__name__)
 
@@ -14,10 +14,11 @@ def shorten():
     if not long_url:
         return jsonify({'error': 'No URL provided'}), 400
 
-    short_code = str(hash(long_url))[:6]  # Generate a short code
+    short_code = str(hash(long_url))[:6]  
     shortened_urls[short_code] = long_url
 
-    return jsonify({'short_url': f'/{short_code}'})  # Returns JSON response
+    full_short_url = f"http://localhost:5000/{short_code}" 
+    return jsonify({'short_url': full_short_url})
 
 @app.route('/<short_code>')
 def redirect_url(short_code):
