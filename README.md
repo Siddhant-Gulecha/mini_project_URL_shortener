@@ -8,6 +8,9 @@ A simple URL shortener built with Flask and SQLite.
 - Redirect users to the original URL when they visit the short link
 - Simple web interface
 
+## AI-Assisted Development
+This project was efficiently built using AI-powered coding assistance, enabling rapid development and optimization. By leveraging AI, we streamlined the coding process, demonstrating how AI can enhance productivity and software development.
+
 ## Installation
 ### Prerequisites
 Make sure you have **Python 3** installed.
@@ -57,4 +60,5 @@ url-shortener/
 - User authentication
 - Analytics for link tracking
 
-
+## License
+This project is licensed under the MIT License.
